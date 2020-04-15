@@ -17,11 +17,13 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: Request): Transaction {
+    if (type !== 'income' && type !== 'outcome') {
+      throw new Error('Unsupported transaction type.');
+    }
+
     const getBalance = this.transactionsRepository.getBalance().total;
     if (type === 'outcome' && getBalance < value) {
-      throw Error(
-        'The value of the outcome is greater than tha total in your account.',
-      );
+      throw Error('Balance unavailable.');
     }
 
     const transaction = this.transactionsRepository.create({
